@@ -60,17 +60,13 @@ public class CharacterMovement : MonoBehaviour
         transform.position = Vector2.MoveTowards(transform.position, nextGridPos, speed.PerFrame());
 
         bool withinPostBuffer = inputPostBuffer > 0 && Vector2.Distance((Vector2)transform.position, prevGridPos) <= Vector2.Distance(prevGridPos + moveDirection * inputPostBuffer, prevGridPos) && Vector2.Dot((Vector2)transform.position - prevGridPos, moveDirection * inputPostBuffer) > 0;
-        bool readInput = inputDirection != Vector2.zero && inputDirection != -moveDirection && !TileMapProcessor.HasTile(prevGridPos + inputDirection, true);
+        bool readInput = InputProcessor.inputDirectionPressedThisFrame && inputDirection != Vector2.zero && inputDirection != -moveDirection && inputDirection != moveDirection && !TileMapProcessor.HasTile(prevGridPos + inputDirection, true);
 
         // skip input
-        //if ((Vector2)transform.position != nextGridPos || inputPostBuffer > 0 ? (!withinPostBuffer || !readInput) : false)
-        //    return;
-
         if (!((Vector2)transform.position == nextGridPos || (withinPostBuffer && readInput)))
             return;
 
-
-        if (withinPostBuffer)
+        if (withinPostBuffer && readInput)
         {
             transform.position = prevGridPos;
             nextGridPos = prevGridPos;

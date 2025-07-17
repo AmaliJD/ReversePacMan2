@@ -26,7 +26,7 @@ public static class TileMapProcessor
             for (int j = _wallTileMap.origin.y; j < _wallTileMap.origin.y + _wallTileMap.size.y; j++)
             {
                 if (IsTileNode(new Vector3Int(i, j)))
-                    positions.Add(new Vector2(i + 1f, j + 1f));
+                    positions.Add((Vector2)_wallTileMap.CellToWorld(new Vector3Int(i, j)) + (Vector2.one * .5f));
 
                 if (_wallTileMap.HasTile(new Vector3Int(i, j)) && _wallTileMap.GetTile(new Vector3Int(i, j)).name == "wall tiles_40")
                     ignoreWallPositions.Add(new Vector2(i, j));
