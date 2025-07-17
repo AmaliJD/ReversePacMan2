@@ -1,5 +1,7 @@
 using EX;
 using UnityEngine;
+using System.Collections.Generic;
+using System.Linq;
 
 public class CharacterMovement : MonoBehaviour
 {
@@ -11,12 +13,14 @@ public class CharacterMovement : MonoBehaviour
     Vector2 nextGridPos;
     Vector2 inputDirection;
     Vector2 moveDirection;
-    Vector2 targetPos;
 
     public enum HitWallBehavior { Stop, TurnStop, TurnReverse, Reverse }
     public HitWallBehavior hitWallBehavior;
 
-    public bool readMoveInput;
+    public enum SetDirectionBehavior { Manual, Input, Target}
+    public SetDirectionBehavior setDirectionBehavior;
+    public Transform target;
+    //public bool readMoveInput;
 
     [Range(0, 1)]
     public float inputPostBuffer;
@@ -41,10 +45,80 @@ public class CharacterMovement : MonoBehaviour
     public void Move()
     {
         // read input
-        if (readMoveInput)
-            inputDirection = InputProcessor.inputDirection4Way;
-        else
-            inputDirection = Vector2.zero;
+        switch (setDirectionBehavior)
+        {
+            case SetDirectionBehavior.Input:
+                inputDirection = InputProcessor.inputDirection4Way;
+                break;
+            case SetDirectionBehavior.Target:
+                // error if target is null
+                if (target == null)
+                {
+                    inputDirection = Vector2.zero;
+                    break;
+                }
+
+                Vector2 nextTransformPosition = Vector2.MoveTowards(transform.position, nextGridPos, speed.PerFrame());
+                bool atNode = nextTransformPosition == nextGridPos && TileMapProcessor.nodePositions.Contains(transform.position.Round());
+                bool atWall = atNode && TileMapProcessor.HasTile(nextGridPos + moveDirection, true);
+
+                // if can reverse anytime and not at node
+                if (!atNode && reverseInputBehavior == ReverseInputBehavior.Anytime)
+                {
+                    float nextNodeDistanceToTarget = Vector2.Distance(nextGridPos, target.position);
+                    float prevNodeDistanceToTarget = Vector2.Distance(prevGridPos, target.position) * 2;
+
+                    if (prevNodeDistanceToTarget < nextNodeDistanceToTarget)
+                    {
+                        inputDirection = (prevGridPos - nextGridPos).normalized;
+                        break;
+                    }
+                }
+
+                // at node calculate
+                if (!atNode)
+                    break;
+
+                bool reverseDirection = reverseInputBehavior switch
+                {
+                    ReverseInputBehavior.None => false,
+                    ReverseInputBehavior.Anytime => true,
+                    ReverseInputBehavior.NodeOnly => atNode,
+                    ReverseInputBehavior.WallOnly => atWall,
+                    _ => false
+                };
+
+                List<Vector2> directions = new();
+                Vector2 testDirection = Vector2.up;
+                Vector2 reverseTestDirection = Vector2.zero;
+                for (int i = 0; i < 4; i++)
+                {
+                    if (!TileMapProcessor.HasTile(nextGridPos + testDirection, true))
+                    {
+                        if (testDirection == -moveDirection ? reverseDirection : true)
+                        {
+                            directions.Add(testDirection);
+
+                            if (testDirection == -moveDirection)
+                                reverseTestDirection = testDirection;
+                        }
+                    }
+
+                    testDirection = testDirection.Rotate90CCW();
+                }
+
+                directions = directions.OrderBy(x => Vector2.Distance(nextGridPos + x * (x == reverseTestDirection ? 2 : 1), target.position)).ToList();
+
+                if (directions.Count > 0)
+                    inputDirection = directions[0];
+                else
+                    inputDirection = Vector2.zero;
+
+                break;
+            case SetDirectionBehavior.Manual:
+                inputDirection = Vector2.zero;
+                break;
+        }
 
         // reverse movement
         if (reverseInputBehavior == ReverseInputBehavior.Anytime && inputDirection == -moveDirection)
@@ -76,7 +150,7 @@ public class CharacterMovement : MonoBehaviour
         transform.position = prevGridPos;
 
         // at node
-        if (TileMapProcessor.positions.Contains(transform.position))
+        if (TileMapProcessor.nodePositions.Contains(transform.position))
         {
             if (inputDirection != Vector2.zero &&
                 reverseInputBehavior switch

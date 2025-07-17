@@ -465,47 +465,59 @@ namespace EX {
             return false;
         }
 
-		//public static Ease EasingFunctionToDoTweenEase(EasingFunction.Ease ease)
-		//{
-		//    return ease switch
-		//    {
-		//        EasingFunction.Ease.Linear => Ease.Linear,
-		//        EasingFunction.Ease.Spring => Ease.Flash,
-		//        EasingFunction.Ease.QuadIn => Ease.InQuad,
-		//        EasingFunction.Ease.QuadOut => Ease.OutQuad,
-		//        EasingFunction.Ease.QuadInOut => Ease.InOutQuad,
-		//        EasingFunction.Ease.CubicIn => Ease.InCubic,
-		//        EasingFunction.Ease.CubicOut => Ease.OutCubic,
-		//        EasingFunction.Ease.CubicInOut => Ease.InOutCubic,
-		//        EasingFunction.Ease.QuartIn => Ease.InQuart,
-		//        EasingFunction.Ease.QuartOut => Ease.OutQuart,
-		//        EasingFunction.Ease.QuartInOut => Ease.InOutQuart,
-		//        EasingFunction.Ease.QuintIn => Ease.InQuint,
-		//        EasingFunction.Ease.QuintOut => Ease.OutQuint,
-		//        EasingFunction.Ease.QuintInOut => Ease.InOutQuint,
-		//        EasingFunction.Ease.SineIn => Ease.InSine,
-		//        EasingFunction.Ease.SineOut => Ease.OutSine,
-		//        EasingFunction.Ease.SineInOut => Ease.InOutSine,
-		//        EasingFunction.Ease.ExponentialIn => Ease.InExpo,
-		//        EasingFunction.Ease.ExponentialOut => Ease.OutExpo,
-		//        EasingFunction.Ease.ExponentialInOut => Ease.InOutExpo,
-		//        EasingFunction.Ease.CircleIn => Ease.InCirc,
-		//        EasingFunction.Ease.CircleOut => Ease.OutCirc,
-		//        EasingFunction.Ease.CircleInOut => Ease.InOutCirc,
-		//        EasingFunction.Ease.BounceIn => Ease.InBounce,
-		//        EasingFunction.Ease.BounceOut => Ease.OutBounce,
-		//        EasingFunction.Ease.BounceInOut => Ease.InOutBounce,
-		//        EasingFunction.Ease.BackIn => Ease.InBack,
-		//        EasingFunction.Ease.BackOut => Ease.OutBack,
-		//        EasingFunction.Ease.BackInOut => Ease.InOutBack,
-		//        EasingFunction.Ease.ElasticIn => Ease.InElastic,
-		//        EasingFunction.Ease.ElasticOut => Ease.OutElastic,
-		//        EasingFunction.Ease.ElasticInOut => Ease.InOutElastic,
-		//        _ => Ease.Linear
-		//    };
-		//}
+        public static bool IfXTrue(int amt, params bool[] conditions)
+        {
+            int countTrue = 0;
+            foreach (bool condition in conditions)
+            {
+                if (condition)
+                    countTrue++;
+            }
 
-		public static PrimeTween.Ease EasingFunctionToPrimeTweenEase(EasingFunction.Ease ease)
+            return countTrue == amt;
+        }
+
+        //public static Ease EasingFunctionToDoTweenEase(EasingFunction.Ease ease)
+        //{
+        //    return ease switch
+        //    {
+        //        EasingFunction.Ease.Linear => Ease.Linear,
+        //        EasingFunction.Ease.Spring => Ease.Flash,
+        //        EasingFunction.Ease.QuadIn => Ease.InQuad,
+        //        EasingFunction.Ease.QuadOut => Ease.OutQuad,
+        //        EasingFunction.Ease.QuadInOut => Ease.InOutQuad,
+        //        EasingFunction.Ease.CubicIn => Ease.InCubic,
+        //        EasingFunction.Ease.CubicOut => Ease.OutCubic,
+        //        EasingFunction.Ease.CubicInOut => Ease.InOutCubic,
+        //        EasingFunction.Ease.QuartIn => Ease.InQuart,
+        //        EasingFunction.Ease.QuartOut => Ease.OutQuart,
+        //        EasingFunction.Ease.QuartInOut => Ease.InOutQuart,
+        //        EasingFunction.Ease.QuintIn => Ease.InQuint,
+        //        EasingFunction.Ease.QuintOut => Ease.OutQuint,
+        //        EasingFunction.Ease.QuintInOut => Ease.InOutQuint,
+        //        EasingFunction.Ease.SineIn => Ease.InSine,
+        //        EasingFunction.Ease.SineOut => Ease.OutSine,
+        //        EasingFunction.Ease.SineInOut => Ease.InOutSine,
+        //        EasingFunction.Ease.ExponentialIn => Ease.InExpo,
+        //        EasingFunction.Ease.ExponentialOut => Ease.OutExpo,
+        //        EasingFunction.Ease.ExponentialInOut => Ease.InOutExpo,
+        //        EasingFunction.Ease.CircleIn => Ease.InCirc,
+        //        EasingFunction.Ease.CircleOut => Ease.OutCirc,
+        //        EasingFunction.Ease.CircleInOut => Ease.InOutCirc,
+        //        EasingFunction.Ease.BounceIn => Ease.InBounce,
+        //        EasingFunction.Ease.BounceOut => Ease.OutBounce,
+        //        EasingFunction.Ease.BounceInOut => Ease.InOutBounce,
+        //        EasingFunction.Ease.BackIn => Ease.InBack,
+        //        EasingFunction.Ease.BackOut => Ease.OutBack,
+        //        EasingFunction.Ease.BackInOut => Ease.InOutBack,
+        //        EasingFunction.Ease.ElasticIn => Ease.InElastic,
+        //        EasingFunction.Ease.ElasticOut => Ease.OutElastic,
+        //        EasingFunction.Ease.ElasticInOut => Ease.InOutElastic,
+        //        _ => Ease.Linear
+        //    };
+        //}
+
+        public static PrimeTween.Ease EasingFunctionToPrimeTweenEase(EasingFunction.Ease ease)
 		{
 			return ease switch
 			{

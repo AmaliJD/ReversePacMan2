@@ -3,6 +3,7 @@ using UnityEngine.Tilemaps;
 using GLG;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
+using EX;
 
 public class Main : MonoBehaviour
 {
@@ -26,11 +27,13 @@ public class Main : MonoBehaviour
     {
         InputProcessor.GetInputs();
 
+        // move all characters
         foreach (CharacterMovement character in characters)
             character.Move();
 
+        // draw nodes
         GLGizmos.SetColor(new Color(0, 1, 0, .75f));
-        foreach (Vector2 nodePos in TileMapProcessor.positions)
+        foreach (Vector2 nodePos in TileMapProcessor.nodePositions)
             GLGizmos.DrawSolidCircle(nodePos, .1f);
     }
 }
