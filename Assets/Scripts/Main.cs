@@ -25,7 +25,7 @@ public class Main : MonoBehaviour
     }
 
     public void AddCharacter(CharacterMovement character) => characters.Add(character);
-    public void AddTPRef(TeleportReference tpr) => teleportReferences.Add(tpr.transform.position, tpr.target.transform.position);
+    public void AddTPRef(TeleportReference tpr) => teleportReferences.Add(tpr.transform.position.Round(), tpr.target.transform.position.Round());
 
     private void Update()
     {
