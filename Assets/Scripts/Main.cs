@@ -10,6 +10,9 @@ public class Main : MonoBehaviour
     public Tilemap WallTilemap;
     List<CharacterMovement> characters = new();
 
+    [HideInInspector]
+    public Dictionary<Vector2, Vector2> teleportReferences = new();
+
     private void Awake()
     {
         Static.main = this;
@@ -22,6 +25,7 @@ public class Main : MonoBehaviour
     }
 
     public void AddCharacter(CharacterMovement character) => characters.Add(character);
+    public void AddTPRef(TeleportReference tpr) => teleportReferences.Add(tpr.transform.position, tpr.target.transform.position);
 
     private void Update()
     {

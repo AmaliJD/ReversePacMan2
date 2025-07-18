@@ -11,6 +11,7 @@ public class CharacterMovement : MonoBehaviour
 
     Vector2 prevGridPos;
     Vector2 nextGridPos;
+    Vector2 targetPos;
     Vector2 inputDirection;
     Vector2 moveDirection;
 
@@ -30,7 +31,7 @@ public class CharacterMovement : MonoBehaviour
 
     private void Awake()
     {
-        moveDirection = Vector2.right;
+        moveDirection = Vector2.zero;
         prevGridPos = transform.position.Round();
         nextGridPos = prevGridPos + moveDirection;
 
@@ -44,6 +45,8 @@ public class CharacterMovement : MonoBehaviour
 
     public void Move()
     {
+        targetPos = target.position;
+
         // read input
         switch (setDirectionBehavior)
         {
@@ -65,8 +68,8 @@ public class CharacterMovement : MonoBehaviour
                 // if can reverse anytime and not at node
                 if (!atNode && reverseInputBehavior == ReverseInputBehavior.Anytime)
                 {
-                    float nextNodeDistanceToTarget = Vector2.Distance(nextGridPos, target.position);
-                    float prevNodeDistanceToTarget = Vector2.Distance(prevGridPos, target.position) * 2;
+                    float nextNodeDistanceToTarget = Vector2.Distance(nextGridPos, targetPos);
+                    float prevNodeDistanceToTarget = Vector2.Distance(prevGridPos, targetPos) * 2;
 
                     if (prevNodeDistanceToTarget < nextNodeDistanceToTarget)
                     {
@@ -107,7 +110,7 @@ public class CharacterMovement : MonoBehaviour
                     testDirection = testDirection.Rotate90CCW();
                 }
 
-                directions = directions.OrderBy(x => Vector2.Distance(nextGridPos + x * (x == reverseTestDirection ? 2 : 1), target.position)).ToList();
+                directions = directions.OrderBy(x => Vector2.Distance(nextGridPos + x * (x == reverseTestDirection ? 2 : 1), targetPos)).ToList();
 
                 if (directions.Count > 0)
                     inputDirection = directions[0];
@@ -144,6 +147,12 @@ public class CharacterMovement : MonoBehaviour
         {
             transform.position = prevGridPos;
             nextGridPos = prevGridPos;
+        }
+
+        // at teleport
+        if (Static.main.teleportReferences.ContainsKey(transform.position))
+        {
+            transform.position = Static.main.teleportReferences.GetValueOrDefault(transform.position);
         }
 
         prevGridPos = transform.position.Round();
