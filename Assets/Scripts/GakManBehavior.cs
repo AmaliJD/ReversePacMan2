@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class GakManBehavior : MonoBehaviour
 {
-    private void Start()
+    private void Awake()
     {
         Static.main.AddGakMen(this);
     }

@@ -3,7 +3,7 @@
 using Unity.VisualScripting;
 using UnityEngine;
 using static EX.MathEX;
-using static UnityEngine.Rendering.DebugUI;
+using System.Collections.Generic;
 
 namespace EX
 {
@@ -258,6 +258,25 @@ namespace EX
         {
             vector = new Vector2(float.IsNaN(vector.x) ? value : vector.x, float.IsNaN(vector.y) ? value : vector.y);
             return vector;
+        }
+
+        public static List<T> Shuffle<T>(this List<T> list)
+        {
+            if (list.Count <= 1)
+                return list;
+
+            List<T> newList = new List<T>();
+            int iterations = list.Count - 1;
+
+            for (int i = 0; i < iterations; i++)
+            {
+                int randomIndex = UnityEngine.Random.Range(0, list.Count - i);
+                newList.Add(list[randomIndex]);
+                list.RemoveAt(randomIndex);
+            }
+
+            newList.Add(list[0]);
+            return newList;
         }
 
         public static BoundsInt ExtendBounds(this BoundsInt bounds, int x, int y)

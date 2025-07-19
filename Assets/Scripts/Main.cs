@@ -4,14 +4,13 @@ using GLG;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using EX;
-using UnityEngine.Windows;
+using System.Linq;
 
 public class Main : MonoBehaviour
 {
     public Tilemap WallTilemap;
     List<MovementController> movementCtrlrs = new();
-    List<GhostBehavior> ghosts = new();
-
+    
     [HideInInspector]
     public Dictionary<Vector2, Vector2> teleportalPairs = new();
     List<TeleportReference> teleportReferences = new();
@@ -20,12 +19,16 @@ public class Main : MonoBehaviour
     public List<HomeCell> homeCells = new();
     [HideInInspector]
     public List<HomeCell> homeCellEntrances = new();
-
+    [HideInInspector]
+    public List<GhostBehavior> ghosts = new();
     [HideInInspector]
     public List<GakManBehavior> gakMen = new();
+    [HideInInspector]
+    public List<ScatterTarget> scatterTargets = new();
 
     [Min(0)]
     public float gameSpeed = 1;
+    public bool scatterMode;
 
     public bool drawGizmos = true;
 
@@ -40,9 +43,16 @@ public class Main : MonoBehaviour
         InputProcessor.input = GetComponent<PlayerInput>();
     }
 
+    private void Start()
+    {
+        if (ghosts.Count > 0)
+            GhostBehavior.leadGhost = ghosts.OrderBy(x => x.ghostType).ToArray()[0];
+    }
+
     public void AddMovementController(MovementController character) => movementCtrlrs.Add(character);
     public void AddGhost(GhostBehavior ghost) => ghosts.Add(ghost);
     public void AddGakMen(GakManBehavior gakMan) => gakMen.Add(gakMan);
+    public void AddScatterTargets(ScatterTarget st) => scatterTargets.Add(st);
     public void AddTPRef(TeleportReference tpr)
     {
         teleportalPairs.Add(tpr.transform.position.Round(), tpr.target.transform.position.Round());
@@ -69,6 +79,14 @@ public class Main : MonoBehaviour
                 ghost.state = GhostBehavior.GhostState.Eaten;
         }
 
+        if (InputProcessor.input.actions["S3"].WasPressedThisFrame())
+        {
+            if (!scatterMode)
+                ScatterGhosts();
+            else
+                UnScatterGhosts();
+        }
+
         // update ghost behavior
         foreach (GhostBehavior ghost in ghosts)
             ghost.BehaviorUpdate();
@@ -81,6 +99,34 @@ public class Main : MonoBehaviour
             Gizmos();
     }
 
+    void ScatterGhosts()
+    {
+        scatterMode = true;
+        scatterTargets = scatterTargets.Shuffle();
+        List<GhostBehavior> activeGhosts = ghosts.Where(x => x.state == GhostBehavior.GhostState.Chase).ToList();
+
+        int i = 0;
+        foreach (GhostBehavior ghost in activeGhosts)
+        {
+            if (scatterTargets.Count > 0)
+                ghost.scatterTarget = scatterTargets[i].transform;
+
+            i++;
+            ghost.state = GhostBehavior.GhostState.Scatter;
+        }
+    }
+
+    void UnScatterGhosts()
+    {
+        scatterMode = false;
+        List<GhostBehavior> activeGhosts = ghosts.Where(x => x.state == GhostBehavior.GhostState.Scatter).ToList();
+
+        foreach (GhostBehavior ghost in ghosts)
+        {
+            ghost.state = GhostBehavior.GhostState.Chase;
+        }
+    }
+
     private void Gizmos()
     {
         // draw nodes
@@ -88,8 +134,12 @@ public class Main : MonoBehaviour
         foreach (Vector2 nodePos in TileMapProcessor.nodePositions)
             GLGizmos.DrawSolidCircle(nodePos, .1f);
 
+        // ghost gizmos
+        foreach (GhostBehavior gst in ghosts)
+            gst.Gizmos();
+
         // teleportal gizmos
-        foreach (TeleportReference tpr in teleportReferences)
-            tpr.Gizmos();
+        //foreach (TeleportReference tpr in teleportReferences)
+        //    tpr.Gizmos();
     }
 }

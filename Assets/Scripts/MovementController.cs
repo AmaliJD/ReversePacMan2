@@ -13,6 +13,11 @@ public class MovementController : MonoBehaviour
     Vector2 nextGridPos;
     Vector2 inputDirection;
     Vector2 moveDirection;
+    Vector2 lastNodeTouched;
+
+    public Vector2 GetNextGridPos() => nextGridPos;
+    public Vector2 GetPrevGridPos() => prevGridPos;
+    public Vector2 GetMoveDirection() => moveDirection;
 
     public enum HitWallBehavior { Stop, TurnStop, TurnReverse, Reverse }
     public HitWallBehavior hitWallBehavior;
@@ -20,7 +25,7 @@ public class MovementController : MonoBehaviour
     public enum SetDirectionBehavior { Manual, Auto, Input, Target, Random}
     public SetDirectionBehavior setDirectionBehavior;
     public Transform target;
-    //public bool readMoveInput;
+    public Vector2 targetOffset;
 
     [Range(0, 1)]
     public float inputPostBuffer;
@@ -37,6 +42,7 @@ public class MovementController : MonoBehaviour
         public ReverseInputBehavior reverseInputBehavior;
         public bool countIgnoreWalls;
         public Transform target;
+        public Vector2 targetOffset;
         public float speed;
     }
 
@@ -46,12 +52,10 @@ public class MovementController : MonoBehaviour
 
         prevGridPos = transform.position.Round();
         nextGridPos = prevGridPos + moveDirection;
+        lastNodeTouched = prevGridPos;
 
         transform.position = prevGridPos;
-    }
 
-    private void Start()
-    {
         Static.main.AddMovementController(this);
     }
 
@@ -64,6 +68,7 @@ public class MovementController : MonoBehaviour
             reverseInputBehavior = reverseInputBehavior,
             countIgnoreWalls = countIgnoreWalls,
             target = target,
+            targetOffset = targetOffset,
             speed = speed
         };
     }
@@ -78,6 +83,7 @@ public class MovementController : MonoBehaviour
         reverseInputBehavior = movementBehavior.reverseInputBehavior;
         countIgnoreWalls = movementBehavior.countIgnoreWalls;
         target = movementBehavior.target;
+        targetOffset = movementBehavior.targetOffset;
         speed = movementBehavior.speed;
     }
 
@@ -146,8 +152,8 @@ public class MovementController : MonoBehaviour
                 // if can reverse anytime and not at node
                 if (!atNode && reverseInputBehavior == ReverseInputBehavior.Anytime)
                 {
-                    float nextNodeDistanceToTarget = Vector2.Distance(nextGridPos, target.position);
-                    float prevNodeDistanceToTarget = Vector2.Distance(prevGridPos, target.position) * 2;
+                    float nextNodeDistanceToTarget = Vector2.Distance(nextGridPos, (Vector2)target.position + targetOffset);
+                    float prevNodeDistanceToTarget = Vector2.Distance(prevGridPos, (Vector2)target.position + targetOffset) * 2;
 
                     if (prevNodeDistanceToTarget < nextNodeDistanceToTarget)
                     {
@@ -188,7 +194,7 @@ public class MovementController : MonoBehaviour
                     testDirection = testDirection.Rotate90CCW();
                 }
 
-                openDirections = openDirections.OrderBy(x => Vector2.Distance(nextGridPos + x * (x == reverseTestDirection ? 2 : 1), target.position)).ToList();
+                openDirections = openDirections.OrderBy(x => Vector2.Distance(nextGridPos + x * (x == reverseTestDirection ? 2 : 1), (Vector2)target.position + targetOffset)).ToList();
 
                 if (openDirections.Count > 0)
                     inputDirection = openDirections[0];
@@ -265,6 +271,7 @@ public class MovementController : MonoBehaviour
 
         prevGridPos = transform.position.Round();
         transform.position = prevGridPos;
+        lastNodeTouched = prevGridPos;
 
         // at node
         if (TileMapProcessor.nodePositions.Contains(transform.position))

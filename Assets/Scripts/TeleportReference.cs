@@ -6,7 +6,7 @@ public class TeleportReference : MonoBehaviour
 {
     public TeleportReference target;
 
-    private void Start()
+    private void Awake()
     {
         Static.main.AddTPRef(this);
     }
