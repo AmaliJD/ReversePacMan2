@@ -81,10 +81,11 @@ public class Main : MonoBehaviour
 
         if (InputProcessor.input.actions["S3"].WasPressedThisFrame())
         {
-            if (!scatterMode)
-                ScatterGhosts();
-            else
-                UnScatterGhosts();
+            ScareGhosts();
+            //if (!scatterMode)
+            //    ScatterGhosts();
+            //else
+            //    UnScatterGhosts();
         }
 
         // update ghost behavior
@@ -124,6 +125,16 @@ public class Main : MonoBehaviour
         foreach (GhostBehavior ghost in ghosts)
         {
             ghost.state = GhostBehavior.GhostState.Chase;
+        }
+    }
+
+    void ScareGhosts()
+    {
+        List<GhostBehavior> activeGhosts = ghosts.Where(x => !x.IsHome()).ToList();
+
+        foreach (GhostBehavior ghost in activeGhosts)
+        {
+            ghost.state = GhostBehavior.GhostState.Scared;
         }
     }
 

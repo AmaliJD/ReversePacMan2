@@ -28,6 +28,7 @@ public class GhostBehavior : MonoBehaviour
     Vector2 startPosition;
     bool isHome;
     bool prevIsHome;
+    public bool IsHome() => isHome;
 
     float waitDuration = 5;
     float timeEnteredHome;
@@ -49,6 +50,16 @@ public class GhostBehavior : MonoBehaviour
         ColorGhost();
 
         Static.main.AddGhost(this);
+    }
+
+    private void Start()
+    {
+        if (ghostType == GhostType.White)
+        {
+            scaredBehavior.hitWallBehavior = inputChasingBehavior.hitWallBehavior;
+            scaredBehavior.setDirectionBehavior = inputChasingBehavior.setDirectionBehavior;
+            scaredBehavior.reverseInputBehavior = inputChasingBehavior.reverseInputBehavior;
+        }
     }
 
     void ColorGhost()
@@ -300,7 +311,7 @@ public class GhostBehavior : MonoBehaviour
                 if (Time.time >= timeBecameScared + scaredDuration)
                 {
                     //movementController.InstantReverseMoveDirection();
-                    state = GhostState.Chase;
+                    state = Static.main.scatterMode ? GhostState.Scatter : GhostState.Chase;
                 }
                 break;
 

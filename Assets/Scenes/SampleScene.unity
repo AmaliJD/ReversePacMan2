@@ -904,7 +904,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 5
   hitWallBehavior: 2
-  setDirectionBehavior: 1
+  setDirectionBehavior: 4
   target: {fileID: 0}
   targetOffset: {x: 0, y: 0}
   inputPostBuffer: 0.5
