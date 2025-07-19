@@ -17,7 +17,7 @@ public class MovementController : MonoBehaviour
     public enum HitWallBehavior { Stop, TurnStop, TurnReverse, Reverse }
     public HitWallBehavior hitWallBehavior;
 
-    public enum SetDirectionBehavior { Manual, Auto, Input, Target}
+    public enum SetDirectionBehavior { Manual, Auto, Input, Target, Random}
     public SetDirectionBehavior setDirectionBehavior;
     public Transform target;
     //public bool readMoveInput;
@@ -89,6 +89,39 @@ public class MovementController : MonoBehaviour
         nextGridPos = prevGridPos + moveDirection;
     }
 
+    public void InstantReverseMoveDirection()
+    {
+        moveDirection = -moveDirection;
+        moveMultiplier = 1;
+
+        prevGridPos = nextGridPos;
+        nextGridPos = prevGridPos + moveDirection * moveMultiplier;
+    }
+
+    List<Vector2> GetAvailableDirections(bool reverseDirection)
+    {
+        List<Vector2> directions = new();
+        Vector2 testDirection = Vector2.up;
+        Vector2 reverseTestDirection = Vector2.zero;
+        for (int i = 0; i < 4; i++)
+        {
+            if (!TileMapProcessor.HasTile(nextGridPos + testDirection, countIgnoreWalls))
+            {
+                if (testDirection == -moveDirection ? reverseDirection : true)
+                {
+                    directions.Add(testDirection);
+
+                    if (testDirection == -moveDirection)
+                        reverseTestDirection = testDirection;
+                }
+            }
+
+            testDirection = testDirection.Rotate90CCW();
+        }
+
+        return directions;
+    }
+
     public void Move()
     {
         // read input
@@ -136,7 +169,7 @@ public class MovementController : MonoBehaviour
                     _ => false
                 };
 
-                List<Vector2> directions = new();
+                List<Vector2> openDirections = new();
                 Vector2 testDirection = Vector2.up;
                 Vector2 reverseTestDirection = Vector2.zero;
                 for (int i = 0; i < 4; i++)
@@ -145,7 +178,7 @@ public class MovementController : MonoBehaviour
                     {
                         if (testDirection == -moveDirection ? reverseDirection : true)
                         {
-                            directions.Add(testDirection);
+                            openDirections.Add(testDirection);
 
                             if (testDirection == -moveDirection)
                                 reverseTestDirection = testDirection;
@@ -155,10 +188,10 @@ public class MovementController : MonoBehaviour
                     testDirection = testDirection.Rotate90CCW();
                 }
 
-                directions = directions.OrderBy(x => Vector2.Distance(nextGridPos + x * (x == reverseTestDirection ? 2 : 1), target.position)).ToList();
+                openDirections = openDirections.OrderBy(x => Vector2.Distance(nextGridPos + x * (x == reverseTestDirection ? 2 : 1), target.position)).ToList();
 
-                if (directions.Count > 0)
-                    inputDirection = directions[0];
+                if (openDirections.Count > 0)
+                    inputDirection = openDirections[0];
                 else
                     inputDirection = Vector2.zero;
 
@@ -169,6 +202,28 @@ public class MovementController : MonoBehaviour
                     inputDirection = Vector2.up.Rotate(UnityEngine.Random.Range(0, 4) * 90);
                 else if (inputDirection != Vector2.zero)
                     inputDirection = Vector2.zero;
+                break;
+
+            case SetDirectionBehavior.Random:
+                nextTransformPosition = Vector2.MoveTowards(transform.position, nextGridPos, speed.PerFrame() * Static.main.gameSpeed);
+                atNode = nextTransformPosition == nextGridPos && TileMapProcessor.nodePositions.Contains(transform.position.Round());
+                atWall = atNode && TileMapProcessor.HasTile(nextGridPos + moveDirection, countIgnoreWalls);
+
+                reverseDirection = reverseInputBehavior switch
+                {
+                    ReverseInputBehavior.None => false,
+                    ReverseInputBehavior.Anytime => true,
+                    ReverseInputBehavior.NodeOnly => false,
+                    ReverseInputBehavior.WallOnly => atWall,
+                    _ => false
+                };
+
+                openDirections = GetAvailableDirections(reverseDirection);
+
+                if (openDirections.Count > 0)
+                    inputDirection = openDirections[UnityEngine.Random.Range(0, openDirections.Count)];
+                else
+                    inputDirection = Vector2.up.Rotate(UnityEngine.Random.Range(0, 4) * 90);
                 break;
 
             case SetDirectionBehavior.Manual:
@@ -203,9 +258,9 @@ public class MovementController : MonoBehaviour
         }
 
         // at teleport
-        if (Static.main.teleportReferences.ContainsKey(transform.position))
+        if (Static.main.teleportalPairs.ContainsKey(transform.position))
         {
-            transform.position = Static.main.teleportReferences.GetValueOrDefault(transform.position);
+            transform.position = Static.main.teleportalPairs.GetValueOrDefault(transform.position);
         }
 
         prevGridPos = transform.position.Round();

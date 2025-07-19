@@ -2,5 +2,9 @@ using UnityEngine;
 
 public class HomeCell : MonoBehaviour
 {
-    private void Start() => Static.main.AddHomeCell(this);
+    public bool isEntrance;
+    private void Start()
+    {
+        Static.main.AddHomeCell(this, isEntrance);
+    }
 }

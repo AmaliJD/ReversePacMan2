@@ -15,8 +15,13 @@ public class GhostBehavior : MonoBehaviour
     Vector2 startPosition;
     bool isHome;
 
-    const float WAIT_DURATION = 3;
+    float waitDuration = 5;
     float timeEnteredHome;
+
+    float scaredDuration = 5;
+    float timeBecameScared;
+
+    public Transform scatterTarget;
 
     MovementController movementController;
 
@@ -37,17 +42,17 @@ public class GhostBehavior : MonoBehaviour
 
     MovementBehaviorStruct waitingBehavior = new MovementBehaviorStruct()
     {
-        hitWallBehavior = HitWallBehavior.TurnStop,
+        hitWallBehavior = HitWallBehavior.TurnReverse,
         setDirectionBehavior = SetDirectionBehavior.Auto,
         reverseInputBehavior = ReverseInputBehavior.None,
         countIgnoreWalls = true,
         target = null,
-        speed = 5
+        speed = 4
     };
 
     MovementBehaviorStruct chasingBehavior = new MovementBehaviorStruct()
     {
-        hitWallBehavior = HitWallBehavior.TurnStop,
+        hitWallBehavior = HitWallBehavior.TurnReverse,
         setDirectionBehavior = SetDirectionBehavior.Target,
         reverseInputBehavior = ReverseInputBehavior.None,
         countIgnoreWalls = true,
@@ -57,12 +62,32 @@ public class GhostBehavior : MonoBehaviour
 
     MovementBehaviorStruct eatenBehavior = new MovementBehaviorStruct()
     {
-        hitWallBehavior = HitWallBehavior.TurnStop,
+        hitWallBehavior = HitWallBehavior.TurnReverse,
         setDirectionBehavior = SetDirectionBehavior.Target,
         reverseInputBehavior = ReverseInputBehavior.None,
         countIgnoreWalls = false,
         target = null,
         speed = 15
+    };
+
+    MovementBehaviorStruct scaredBehavior = new MovementBehaviorStruct()
+    {
+        hitWallBehavior = HitWallBehavior.TurnReverse,
+        setDirectionBehavior = SetDirectionBehavior.Random,
+        reverseInputBehavior = ReverseInputBehavior.None,
+        countIgnoreWalls = true,
+        target = null,
+        speed = 2.5f
+    };
+
+    MovementBehaviorStruct scatterBehavior = new MovementBehaviorStruct()
+    {
+        hitWallBehavior = HitWallBehavior.TurnReverse,
+        setDirectionBehavior = SetDirectionBehavior.Target,
+        reverseInputBehavior = ReverseInputBehavior.None,
+        countIgnoreWalls = true,
+        target = null,
+        speed = 5
     };
 
     public void BehaviorUpdate()
@@ -82,12 +107,16 @@ public class GhostBehavior : MonoBehaviour
             case GhostState.Wait:
                 movementController.SetMovementParameters(waitingBehavior);
 
-                if (Time.time >= timeEnteredHome + WAIT_DURATION)
+                if (Time.time >= timeEnteredHome + waitDuration)
                     state = GhostState.Chase;
                 break;
 
             case GhostState.Chase:
-                chasingBehavior.target = Static.main.gakMen.OrderBy(x => Vector2.Distance(x.transform.position, transform.position)).ToArray()[0].transform;
+                if (!isHome)
+                    chasingBehavior.target = Static.main.gakMen.OrderBy(x => Vector2.Distance(x.transform.position, transform.position)).ToArray()[0].transform;
+                else
+                    chasingBehavior.target = Static.main.homeCellEntrances.OrderBy(x => Vector2.Distance(x.transform.position, transform.position)).ToArray()[0].transform;
+
                 chasingBehavior.countIgnoreWalls = !isHome;
                 movementController.SetMovementParameters(chasingBehavior);
                 break;
@@ -95,7 +124,7 @@ public class GhostBehavior : MonoBehaviour
             case GhostState.Eaten:
                 if (prevState != GhostState.Eaten)
                 {
-                    eatenBehavior.target = Static.main.homeCells.Select(x => x.transform).ToArray()[UnityEngine.Random.Range(0, Static.main.homeCells.Count)].transform;
+                    eatenBehavior.target = Static.main.homeCellEntrances.Select(x => x.transform).ToArray()[UnityEngine.Random.Range(0, Static.main.homeCellEntrances.Count)].transform;
                 }
                 movementController.SetMovementParameters(eatenBehavior);
 
@@ -104,6 +133,35 @@ public class GhostBehavior : MonoBehaviour
                     state = GhostState.Wait;
                     timeEnteredHome = Time.time;
                 }
+                break;
+
+            case GhostState.Scared:
+                if (prevState != GhostState.Scared)
+                {
+                    movementController.InstantReverseMoveDirection();
+                    timeBecameScared = Time.time;
+                }
+                movementController.SetMovementParameters(scaredBehavior);
+
+                if (Time.time >= timeBecameScared + scaredDuration)
+                {
+                    //movementController.InstantReverseMoveDirection();
+                    state = GhostState.Chase;
+                }
+                break;
+
+            case GhostState.Scatter:
+                if (prevState != GhostState.Scatter)
+                {
+                    movementController.InstantReverseMoveDirection();
+                    scatterBehavior.target = scatterTarget;
+
+                    if (scatterTarget != null)
+                        scatterBehavior.setDirectionBehavior = SetDirectionBehavior.Target;
+                    else
+                        scatterBehavior.setDirectionBehavior = SetDirectionBehavior.Random;
+                }
+                movementController.SetMovementParameters(scatterBehavior);
                 break;
         }
 
