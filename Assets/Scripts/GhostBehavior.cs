@@ -93,6 +93,17 @@ public class GhostBehavior : MonoBehaviour
 
     void CheckIsHome() => isHome = Static.main.homeCells.Select(x => x.transform.position.Round()).Contains(transform.position.Round());
 
+    MovementBehaviorStruct inputChasingBehavior = new MovementBehaviorStruct()
+    {
+        hitWallBehavior = HitWallBehavior.Stop,
+        setDirectionBehavior = SetDirectionBehavior.Input,
+        reverseInputBehavior = ReverseInputBehavior.WallOnly,
+        countIgnoreWalls = true,
+        target = null,
+        targetOffset = Vector2.zero,
+        speed = 5
+    };
+
     MovementBehaviorStruct waitingBehavior = new MovementBehaviorStruct()
     {
         hitWallBehavior = HitWallBehavior.TurnReverse,
@@ -240,21 +251,28 @@ public class GhostBehavior : MonoBehaviour
                 break;
 
             case GhostState.Chase:
-                (Transform target, Vector2 offset) = GetChaseTarget();
-
-                if (!isHome)
+                if (ghostType != GhostType.White || isHome)
                 {
-                    chasingBehavior.target = target;
-                    chasingBehavior.targetOffset = offset;
+                    (Transform target, Vector2 offset) = GetChaseTarget();
+
+                    if (!isHome)
+                    {
+                        chasingBehavior.target = target;
+                        chasingBehavior.targetOffset = offset;
+                    }
+                    else
+                    {
+                        chasingBehavior.target = Static.main.homeCellEntrances.OrderBy(x => Vector2.Distance(x.transform.position, transform.position)).ToArray()[0].transform;
+                        chasingBehavior.targetOffset = Vector2.zero;
+                    }
+
+                    chasingBehavior.countIgnoreWalls = !isHome;
+                    movementController.SetMovementParameters(chasingBehavior);
                 }
                 else
                 {
-                    chasingBehavior.target = Static.main.homeCellEntrances.OrderBy(x => Vector2.Distance(x.transform.position, transform.position)).ToArray()[0].transform;
-                    chasingBehavior.targetOffset = Vector2.zero;
+                    movementController.SetMovementParameters(inputChasingBehavior);
                 }
-
-                chasingBehavior.countIgnoreWalls = !isHome;
-                movementController.SetMovementParameters(chasingBehavior);
                 break;
 
             case GhostState.Eaten:
@@ -287,6 +305,12 @@ public class GhostBehavior : MonoBehaviour
                 break;
 
             case GhostState.Scatter:
+                if (ghostType == GhostType.White)
+                {
+                    state = GhostState.Chase;
+                    break;
+                }
+
                 if (isHome)
                 {
                     scatterBehavior.target = Static.main.homeCellEntrances.OrderBy(x => Vector2.Distance(x.transform.position, transform.position)).ToArray()[0].transform;
