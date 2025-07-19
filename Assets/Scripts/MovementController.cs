@@ -219,7 +219,7 @@ public class MovementController : MonoBehaviour
                 {
                     ReverseInputBehavior.None => false,
                     ReverseInputBehavior.Anytime => true,
-                    ReverseInputBehavior.NodeOnly => false,
+                    ReverseInputBehavior.NodeOnly => atNode,
                     ReverseInputBehavior.WallOnly => atWall,
                     _ => false
                 };
