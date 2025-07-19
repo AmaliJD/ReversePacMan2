@@ -260,6 +260,13 @@ namespace EX
             return vector;
         }
 
+        public static BoundsInt ExtendBounds(this BoundsInt bounds, int x, int y)
+        {
+            BoundsInt newBounds = bounds;
+            newBounds.size = newBounds.size + new Vector3Int((int)(x * Mathf.Sign(bounds.size.x)), (int)(y * Mathf.Sign(bounds.size.y)), 0);
+            return newBounds;
+        }
+
         public static Color Vector4AsColor(this Vector4 vector)
         {
             return new Color(vector.x, vector.y, vector.z, vector.w);

@@ -5,11 +5,13 @@ using EX;
 using UnityEngine.UIElements;
 public static class TileMapProcessor
 {
-    static Tilemap _wallTileMap;
+    public static Tilemap _wallTileMap;
 
     public static List<Vector2> nodePositions;
     public static List<Vector2> ignoreWallPositions;
     public static List<Vector2> tilePositions;
+
+    static string ignoreTileName = "wall tiles_40";
 
     public static void Init(Tilemap wall)
     {
@@ -31,7 +33,7 @@ public static class TileMapProcessor
                 if (IsTileNode(new Vector3Int(i, j)))
                     nodePositions.Add((Vector2)_wallTileMap.CellToWorld(new Vector3Int(i, j)) + (Vector2.one * .5f));
 
-                if (_wallTileMap.HasTile(new Vector3Int(i, j)) && _wallTileMap.GetTile(new Vector3Int(i, j)).name == "wall tiles_40")
+                if (_wallTileMap.HasTile(new Vector3Int(i, j)) && _wallTileMap.GetTile(new Vector3Int(i, j)).name == ignoreTileName)
                     ignoreWallPositions.Add(new Vector2(i, j));
 
                 count++;
@@ -52,16 +54,16 @@ public static class TileMapProcessor
             return false;
 
         bool upEmpty, rightEmpty, downEmpty, leftEmpty;
-        upEmpty = !_wallTileMap.HasTile(position + Vector3Int.up);
-        rightEmpty = !_wallTileMap.HasTile(position + Vector3Int.right);
-        downEmpty = !_wallTileMap.HasTile(position - Vector3Int.up);
-        leftEmpty = !_wallTileMap.HasTile(position - Vector3Int.right);
+        upEmpty = !_wallTileMap.HasTile(position + Vector3Int.up) || _wallTileMap.GetTile(position + Vector3Int.up).name == ignoreTileName;
+        rightEmpty = !_wallTileMap.HasTile(position + Vector3Int.right) || _wallTileMap.GetTile(position + Vector3Int.right).name == ignoreTileName;
+        downEmpty = !_wallTileMap.HasTile(position - Vector3Int.up) || _wallTileMap.GetTile(position - Vector3Int.up).name == ignoreTileName;
+        leftEmpty = !_wallTileMap.HasTile(position - Vector3Int.right) || _wallTileMap.GetTile(position - Vector3Int.right).name == ignoreTileName;
 
-        bool upRightFilled, upLeftFilled, downRightFilled, downLeftFilled;
-        upRightFilled = _wallTileMap.HasTile(position + Vector3Int.up + Vector3Int.right);
-        upLeftFilled = _wallTileMap.HasTile(position + Vector3Int.up - Vector3Int.right);
-        downRightFilled = _wallTileMap.HasTile(position - Vector3Int.up + Vector3Int.right);
-        downLeftFilled = _wallTileMap.HasTile(position - Vector3Int.up - Vector3Int.right);
+        //bool upRightFilled, upLeftFilled, downRightFilled, downLeftFilled;
+        //upRightFilled = _wallTileMap.HasTile(position + Vector3Int.up + Vector3Int.right);
+        //upLeftFilled = _wallTileMap.HasTile(position + Vector3Int.up - Vector3Int.right);
+        //downRightFilled = _wallTileMap.HasTile(position - Vector3Int.up + Vector3Int.right);
+        //downLeftFilled = _wallTileMap.HasTile(position - Vector3Int.up - Vector3Int.right);
 
         return ((upEmpty || downEmpty) && (rightEmpty || leftEmpty)) || Ex.IfXTrue(1, upEmpty, downEmpty, rightEmpty, leftEmpty); //&& Ex.IfAtLeastX(3, upRightFilled, upLeftFilled, downRightFilled, downLeftFilled); //&& !(upEmpty && downEmpty && rightEmpty && leftEmpty);
     }
