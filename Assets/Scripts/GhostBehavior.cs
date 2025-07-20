@@ -40,7 +40,7 @@ public class GhostBehavior : MonoBehaviour
     public Transform scatterTarget;
 
     MovementController movementController;
-    Color ghostColor;
+    Color ghostColor, eyeColor;
 
     private void Awake()
     {
@@ -69,26 +69,31 @@ public class GhostBehavior : MonoBehaviour
         {
             case GhostType.Red:
                 ghostColor = Color.red;
+                eyeColor = Color.white;
                 gakManRadius = 0;
                 break;
 
             case GhostType.Pink:
                 ghostColor = new Color(1, .72f, 1);
+                eyeColor = Color.white;
                 gakManRadius = 0;
                 break;
 
             case GhostType.Cyan:
                 ghostColor = Color.cyan;
+                eyeColor = Color.white;
                 gakManRadius = 0;
                 break;
 
             case GhostType.Orange:
-                ghostColor = new Color(1, .72f, .32f);
+                ghostColor = new Color(1, .67f, .23f);
+                eyeColor = Color.white;
                 gakManRadius = 8;
                 break;
 
             case GhostType.White:
                 ghostColor = Color.white;
+                eyeColor = Color.red;
                 gakManRadius = 0;
                 break;
 
@@ -98,12 +103,14 @@ public class GhostBehavior : MonoBehaviour
                 break;
 
             case GhostType.Purple:
-                ghostColor = new Color(.5f, .12f, 1);
+                ghostColor = new Color(.53f, .33f, .9f);
+                eyeColor = new Color(0, .85f, .85f);
                 gakManRadius = 0;
                 break;
 
             case GhostType.Yellow:
                 ghostColor = new Color(1, 0.88f, 0);
+                eyeColor = Color.white;
                 gakManRadius = 8;
                 break;
         }
@@ -367,8 +374,18 @@ public class GhostBehavior : MonoBehaviour
                 break;
         }
 
+        Visuals();
+
         prevState = state;
         prevIsHome = isHome;
+    }
+
+    void Visuals()
+    {
+        if (movementController.GetMoveDirection() == Vector2.right && transform.localScale.x != -1)
+            transform.localScale = new Vector3(-1, 1, 1);
+        else if (movementController.GetMoveDirection() == Vector2.left && transform.localScale.x !=     1)
+            transform.localScale = new Vector3(1, 1, 1);
     }
 
     public void Gizmos()
