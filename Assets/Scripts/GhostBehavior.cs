@@ -24,7 +24,7 @@ public class GhostBehavior : MonoBehaviour
     public static GhostBehavior leadGhost;
 
     [Min(0)]
-    public float gakManRadius;
+    float gakManRadius;
 
     Vector2 startPosition;
     bool isHome;
@@ -48,7 +48,7 @@ public class GhostBehavior : MonoBehaviour
         timeEnteredHome = Time.time;
         startPosition = transform.position.Round();
         prevState = state;
-        ColorGhost();
+        InitGhost();
 
         Static.main.AddGhost(this);
     }
@@ -63,40 +63,48 @@ public class GhostBehavior : MonoBehaviour
         }
     }
 
-    void ColorGhost()
+    void InitGhost()
     {
         switch (ghostType)
         {
             case GhostType.Red:
                 ghostColor = Color.red;
+                gakManRadius = 0;
                 break;
 
             case GhostType.Pink:
                 ghostColor = new Color(1, .72f, 1);
+                gakManRadius = 0;
                 break;
 
             case GhostType.Cyan:
                 ghostColor = Color.cyan;
+                gakManRadius = 0;
                 break;
 
             case GhostType.Orange:
                 ghostColor = new Color(1, .72f, .32f);
+                gakManRadius = 8;
                 break;
 
             case GhostType.White:
                 ghostColor = Color.white;
+                gakManRadius = 0;
                 break;
 
             case GhostType.Green:
                 ghostColor = new Color(.25f, 1, 0);
+                gakManRadius = 0;
                 break;
 
             case GhostType.Purple:
                 ghostColor = new Color(.5f, .12f, 1);
+                gakManRadius = 0;
                 break;
 
             case GhostType.Yellow:
                 ghostColor = new Color(1, 0.88f, 0);
+                gakManRadius = 8;
                 break;
         }
 
