@@ -34,7 +34,7 @@ public class GhostBehavior : MonoBehaviour
     float waitDuration = 5;
     float timeEnteredHome;
 
-    float scaredDuration = 77;
+    float scaredDuration = 7;
     float timeBecameScared;
 
     public Transform scatterTarget;
