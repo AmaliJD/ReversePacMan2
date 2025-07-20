@@ -5,6 +5,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using static MovementController;
 
+[RequireComponent(typeof(MovementController))]
 public class GhostBehavior : MonoBehaviour
 {
     public enum GhostState
@@ -33,7 +34,7 @@ public class GhostBehavior : MonoBehaviour
     float waitDuration = 5;
     float timeEnteredHome;
 
-    float scaredDuration = 5;
+    float scaredDuration = 77;
     float timeBecameScared;
 
     public Transform scatterTarget;

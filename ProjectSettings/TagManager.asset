@@ -5,15 +5,17 @@ TagManager:
   serializedVersion: 3
   tags:
   - Main
+  - Egg
+  - Ghost
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Egg
   - Water
   - UI
-  - 
-  - 
+  - GakMan
+  - Ghost
   - 
   - 
   - 

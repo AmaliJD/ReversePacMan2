@@ -25,10 +25,16 @@ public class Main : MonoBehaviour
     public List<GakManBehavior> gakMen = new();
     [HideInInspector]
     public List<ScatterTarget> scatterTargets = new();
+    [HideInInspector]
+    public List<Egg> eggs = new();
+    public List<Vector2> eggPositions = new();
 
     [Min(0)]
     public float gameSpeed = 1;
     public bool scatterMode;
+
+    [Min(0)]
+    public int eggsCollected;
 
     public bool drawGizmos = true;
 
@@ -65,6 +71,11 @@ public class Main : MonoBehaviour
         if (isEntrance)
             homeCellEntrances.Add(hc);
     }
+    public void AddEgg(Egg egg)
+    {
+        eggs.Add(egg);
+        eggPositions.Add(egg.transform.position);
+    }
 
     private void Update()
     {
@@ -88,13 +99,17 @@ public class Main : MonoBehaviour
             //    UnScatterGhosts();
         }
 
-        // update ghost behavior
-        foreach (GhostBehavior ghost in ghosts)
-            ghost.BehaviorUpdate();
-
         // move all characters
         foreach (MovementController character in movementCtrlrs)
             character.Move();
+
+        // update gakmen behavior
+        foreach (GakManBehavior gakMan in gakMen)
+            gakMan.BehaviorUpdate();
+
+        // update ghost behavior
+        foreach (GhostBehavior ghost in ghosts)
+            ghost.BehaviorUpdate();
 
         if (drawGizmos)
             Gizmos();
@@ -128,7 +143,7 @@ public class Main : MonoBehaviour
         }
     }
 
-    void ScareGhosts()
+    public void ScareGhosts()
     {
         List<GhostBehavior> activeGhosts = ghosts.Where(x => !x.IsHome()).ToList();
 
