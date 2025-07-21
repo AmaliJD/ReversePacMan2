@@ -97,10 +97,22 @@ public class MovementController : MonoBehaviour
 
     public void InstantReverseMoveDirection()
     {
+        if (TileMapProcessor.nodePositions.Contains(transform.position) && TileMapProcessor.HasTile(prevGridPos - moveDirection, countIgnoreWalls))
+            return;
+
         moveDirection = -moveDirection;
         moveMultiplier = 1;
 
         prevGridPos = nextGridPos;
+        nextGridPos = prevGridPos + moveDirection * moveMultiplier;
+    }
+
+    public void TeleportSetMoveDirection(Vector2 direction)
+    {
+        moveDirection = direction;
+        moveMultiplier = 1;
+
+        prevGridPos = transform.position.Round();
         nextGridPos = prevGridPos + moveDirection * moveMultiplier;
     }
 
@@ -266,7 +278,10 @@ public class MovementController : MonoBehaviour
         // at teleport
         if (Static.main.teleportalPairs.ContainsKey(transform.position))
         {
-            transform.position = Static.main.teleportalPairs.GetValueOrDefault(transform.position);
+            Vector2[] teleportPositionDirection = Static.main.teleportalPairs.GetValueOrDefault(transform.position);
+
+            transform.position = teleportPositionDirection[0].Round();
+            TeleportSetMoveDirection(teleportPositionDirection[1]);
         }
 
         prevGridPos = transform.position.Round();

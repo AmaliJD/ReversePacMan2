@@ -8,6 +8,9 @@ public class TeleportReference : MonoBehaviour
 
     private void Awake()
     {
+        if (target == null)
+            target = this;
+
         Static.main.AddTPRef(this);
     }
 

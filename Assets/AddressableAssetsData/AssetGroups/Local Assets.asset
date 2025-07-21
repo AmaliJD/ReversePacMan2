@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Local Assets
+  m_EditorClassIdentifier: 
+  m_GroupName: Local Assets
+  m_GUID: 5861e9664b5a478478e6939516bed6b7
+  m_SerializeEntries:
+  - m_GUID: 9de832ddd0291f243bfb6fefd058537a
+    m_Address: Assets/Images/ghost.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 91988407c759e4c478d5b752f3767574, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 8de59803c5d4f414e9e26ffc296d7a0d, type: 2}
+    - {fileID: 11400000, guid: cb0c3dd980506d64ca6e82e474da912d, type: 2}

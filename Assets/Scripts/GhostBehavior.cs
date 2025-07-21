@@ -4,6 +4,8 @@ using System.Linq;
 using UnityEngine;
 using System.Collections.Generic;
 using static MovementController;
+using PrimeTween;
+using UnityEngine.Assertions.Must;
 
 [RequireComponent(typeof(MovementController))]
 public class GhostBehavior : MonoBehaviour
@@ -38,9 +40,12 @@ public class GhostBehavior : MonoBehaviour
     float timeBecameScared;
 
     public Transform scatterTarget;
+    public int eyeSpriteIndex;
 
     MovementController movementController;
     Color ghostColor, eyeColor;
+    SpriteRenderer bodySprite, eyeSprite;
+    Sequence bodyFlash, eyeFlash;
 
     private void Awake()
     {
@@ -99,6 +104,7 @@ public class GhostBehavior : MonoBehaviour
 
             case GhostType.Green:
                 ghostColor = new Color(.25f, 1, 0);
+                eyeColor = new Color(.94f, 1f, 1f);
                 gakManRadius = 0;
                 break;
 
@@ -115,7 +121,11 @@ public class GhostBehavior : MonoBehaviour
                 break;
         }
 
-        transform.GetChild(0).GetComponent<SpriteRenderer>().color = ghostColor;
+        bodySprite = transform.GetChild(0).GetComponent<SpriteRenderer>();
+        bodySprite.color = ghostColor;
+
+        eyeSprite = transform.GetChild(1).GetComponent<SpriteRenderer>();
+        eyeSprite.color = eyeColor;
     }
 
     void CheckIsHome() => isHome = Static.main.homeCells.Select(x => x.transform.position.Round()).Contains(transform.position.Round());
@@ -380,12 +390,65 @@ public class GhostBehavior : MonoBehaviour
         prevIsHome = isHome;
     }
 
+    public void ResetScareTime() => timeBecameScared = Time.time;
+
     void Visuals()
     {
         if (movementController.GetMoveDirection() == Vector2.right && transform.localScale.x != -1)
             transform.localScale = new Vector3(-1, 1, 1);
         else if (movementController.GetMoveDirection() == Vector2.left && transform.localScale.x !=     1)
             transform.localScale = new Vector3(1, 1, 1);
+
+        if (Static.main.ghostSprites.Count == 0)
+            return;
+
+        if (state == GhostState.Scared)
+        {
+            eyeSprite.sprite = Static.main.ghostSprites[5];
+            eyeSprite.color = Color.red;
+            bodySprite.color = Color.blue;
+
+            if (prevState != GhostState.Scared)
+            {
+                float randomStart = UnityEngine.Random.Range(0, .6f);
+                Invoke("StartBodyFlashing", randomStart);
+                Invoke("StartEyeFlashing", randomStart + .4f);
+            }
+            
+        }
+        else
+        {
+            if (prevState == GhostState.Scared)
+            {
+                bodyFlash.Stop();
+                eyeFlash.Stop();
+            }
+
+            eyeSprite.sprite = movementController.GetMoveDirection().y switch
+            {
+                1 => Static.main.ghostSprites[eyeSpriteIndex + 2],
+                -1 => Static.main.ghostSprites[eyeSpriteIndex + 1],
+                _ => Static.main.ghostSprites[eyeSpriteIndex],
+            };
+            eyeSprite.color = eyeColor;
+            bodySprite.color = state == GhostState.Eaten ? ghostColor.SetAlpha(.025f) : ghostColor;
+        }
+    }
+
+    void StartBodyFlashing()
+    {
+        bodyFlash = Sequence.Create()
+                    .Chain(Tween.Color(bodySprite, Color.white, .05f))
+                    .Chain(Tween.Color(bodySprite, Color.blue, 1f))
+                    .OnComplete(() => Invoke("StartBodyFlashing", 0));
+    }
+
+    void StartEyeFlashing()
+    {
+        eyeFlash = Sequence.Create()
+                    .Chain(Tween.Color(eyeSprite, Color.white, .05f))
+                    .Chain(Tween.Color(eyeSprite, Color.red, 1f))
+                    .OnComplete(() => Invoke("StartEyeFlashing", 0));
     }
 
     public void Gizmos()

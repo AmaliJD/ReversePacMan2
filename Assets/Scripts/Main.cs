@@ -3,8 +3,11 @@ using UnityEngine.Tilemaps;
 using GLG;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
+using System.Collections;
 using EX;
 using System.Linq;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class Main : MonoBehaviour
 {
@@ -12,7 +15,7 @@ public class Main : MonoBehaviour
     List<MovementController> movementCtrlrs = new();
     
     [HideInInspector]
-    public Dictionary<Vector2, Vector2> teleportalPairs = new();
+    public Dictionary<Vector2, Vector2[]> teleportalPairs = new();
     List<TeleportReference> teleportReferences = new();
 
     [HideInInspector]
@@ -27,7 +30,10 @@ public class Main : MonoBehaviour
     public List<ScatterTarget> scatterTargets = new();
     [HideInInspector]
     public List<Egg> eggs = new();
+    [HideInInspector]
     public List<Vector2> eggPositions = new();
+    [HideInInspector]
+    public List<Sprite> ghostSprites;
 
     [Min(0)]
     public float gameSpeed = 1;
@@ -47,6 +53,19 @@ public class Main : MonoBehaviour
         TileMapProcessor.RemoveIgnoreTiles();
 
         InputProcessor.input = GetComponent<PlayerInput>();
+        StartCoroutine(LoadGhostSprites());
+    }
+
+    private IEnumerator LoadGhostSprites()
+    {
+        AsyncOperationHandle<Sprite[]> ghostAssetHandle = Addressables.LoadAssetAsync<Sprite[]>("Assets/Images/ghost.png");
+        yield return ghostAssetHandle;
+
+        if (ghostAssetHandle.Status == AsyncOperationStatus.Succeeded)
+        {
+            foreach (Sprite sprite in ghostAssetHandle.Result)
+                ghostSprites.Add(sprite);
+        }
     }
 
     private void Start()
@@ -61,7 +80,7 @@ public class Main : MonoBehaviour
     public void AddScatterTargets(ScatterTarget st) => scatterTargets.Add(st);
     public void AddTPRef(TeleportReference tpr)
     {
-        teleportalPairs.Add(tpr.transform.position.Round(), tpr.target.transform.position.Round());
+        teleportalPairs.Add(tpr.transform.position.Round(), new Vector2[] { tpr.target.transform.position.Round(), tpr.target.transform.right });
         teleportReferences.Add(tpr);
     }
     public void AddHomeCell(HomeCell hc, bool isEntrance)
@@ -93,10 +112,14 @@ public class Main : MonoBehaviour
         if (InputProcessor.input.actions["S3"].WasPressedThisFrame())
         {
             ScareGhosts();
-            //if (!scatterMode)
-            //    ScatterGhosts();
-            //else
-            //    UnScatterGhosts();
+        }
+
+        if (InputProcessor.input.actions["S4"].WasPressedThisFrame())
+        {
+            if (!scatterMode)
+                ScatterGhosts();
+            else
+                UnScatterGhosts();
         }
 
         // move all characters
@@ -145,10 +168,13 @@ public class Main : MonoBehaviour
 
     public void ScareGhosts()
     {
-        List<GhostBehavior> activeGhosts = ghosts.Where(x => !x.IsHome()).ToList();
+        List<GhostBehavior> activeGhosts = ghosts.Where(x => !x.IsHome() && x.state != GhostBehavior.GhostState.Eaten).ToList();
 
         foreach (GhostBehavior ghost in activeGhosts)
         {
+            if (ghost.state == GhostBehavior.GhostState.Scared)
+                ghost.ResetScareTime();
+
             ghost.state = GhostBehavior.GhostState.Scared;
         }
     }
