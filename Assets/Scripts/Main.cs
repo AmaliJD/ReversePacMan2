@@ -32,7 +32,7 @@ public class Main : MonoBehaviour
     public List<Egg> eggs = new();
     [HideInInspector]
     public List<Vector2> eggPositions = new();
-    [HideInInspector]
+    //[HideInInspector]
     public List<Sprite> ghostSprites;
 
     [Min(0)]
@@ -53,7 +53,7 @@ public class Main : MonoBehaviour
         TileMapProcessor.RemoveIgnoreTiles();
 
         InputProcessor.input = GetComponent<PlayerInput>();
-        StartCoroutine(LoadGhostSprites());
+        //StartCoroutine(LoadGhostSprites());
     }
 
     private IEnumerator LoadGhostSprites()
@@ -168,7 +168,7 @@ public class Main : MonoBehaviour
 
     public void ScareGhosts()
     {
-        List<GhostBehavior> activeGhosts = ghosts.Where(x => !x.IsHome() && x.state != GhostBehavior.GhostState.Eaten).ToList();
+        List<GhostBehavior> activeGhosts = ghosts.Where(x => !x.IsHome() && x.state != GhostBehavior.GhostState.Eaten && x.state != GhostBehavior.GhostState.Wait).ToList();
 
         foreach (GhostBehavior ghost in activeGhosts)
         {

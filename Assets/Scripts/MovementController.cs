@@ -175,7 +175,7 @@ public class MovementController : MonoBehaviour
                 }
 
                 // at node calculate
-                if (!atNode)
+                if (!atNode && moveDirection != Vector2.zero)
                     break;
 
                 bool reverseDirection = reverseInputBehavior switch
@@ -289,7 +289,7 @@ public class MovementController : MonoBehaviour
         lastNodeTouched = prevGridPos;
 
         // at node
-        if (TileMapProcessor.nodePositions.Contains(transform.position))
+        if (TileMapProcessor.nodePositions.Contains(transform.position) || moveDirection == Vector2.zero)
         {
             if (inputDirection != Vector2.zero &&
                 reverseInputBehavior switch

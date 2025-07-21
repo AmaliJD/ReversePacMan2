@@ -110,7 +110,7 @@ public class GhostBehavior : MonoBehaviour
 
             case GhostType.Purple:
                 ghostColor = new Color(.53f, .33f, .9f);
-                eyeColor = new Color(0, .85f, .85f);
+                eyeColor = new Color(1, .85f, .85f);
                 gakManRadius = 0;
                 break;
 
