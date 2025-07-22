@@ -118,13 +118,13 @@ public class Main : MonoBehaviour
             ScareGhosts();
         }
 
-        //if (InputProcessor.input.actions["S4"].WasPressedThisFrame())
-        //{
-        //    if (!scatterMode)
-        //        ScatterGhosts();
-        //    else
-        //        UnScatterGhosts();
-        //}
+        if (InputProcessor.input.actions["S4"].WasPressedThisFrame())
+        {
+            if (!scatterMode)
+                ScatterGhosts();
+            else
+                UnScatterGhosts();
+        }
 
         // move all characters
         foreach (MovementController character in movementCtrlrs)
@@ -139,7 +139,7 @@ public class Main : MonoBehaviour
             ghost.BehaviorUpdate();
 
         // randomly rotate eggs
-        if (UnityEngine.Random.Range(0, 5000 / eggs.Count) == 0)
+        if (UnityEngine.Random.Range(0, 5500 / eggs.Count) == 0)
         {
             Transform eggTransform = eggs[UnityEngine.Random.Range(0, eggs.Count)].transform;
             Sequence.Create()
@@ -157,6 +157,9 @@ public class Main : MonoBehaviour
         scatterTargets = scatterTargets.Shuffle();
         List<GhostBehavior> activeGhosts = ghosts.Where(x => x.state == GhostBehavior.GhostState.Chase).ToList();
 
+        if (activeGhosts.Count == 0)
+            return;
+
         int i = 0;
         foreach (GhostBehavior ghost in activeGhosts)
         {
@@ -173,7 +176,10 @@ public class Main : MonoBehaviour
         scatterMode = false;
         List<GhostBehavior> activeGhosts = ghosts.Where(x => x.state == GhostBehavior.GhostState.Scatter).ToList();
 
-        foreach (GhostBehavior ghost in ghosts)
+        if (activeGhosts.Count == 0)
+            return;
+
+        foreach (GhostBehavior ghost in activeGhosts)
         {
             ghost.state = GhostBehavior.GhostState.Chase;
         }

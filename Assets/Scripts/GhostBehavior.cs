@@ -5,7 +5,8 @@ using UnityEngine;
 using System.Collections.Generic;
 using static MovementController;
 using PrimeTween;
-using UnityEngine.Assertions.Must;
+using MEC;
+using UnityEngine.UIElements.Experimental;
 
 [RequireComponent(typeof(MovementController))]
 public class GhostBehavior : MonoBehaviour
@@ -44,8 +45,9 @@ public class GhostBehavior : MonoBehaviour
 
     MovementController movementController;
     Color ghostColor, eyeColor;
+    Color scaredColor = new Color(.2f, .6f, 1f, .5f);
     SpriteRenderer bodySprite, eyeSprite;
-    Tween bodyFlash, eyeFlash;
+    CoroutineHandle flashMEC;
 
     private void Awake()
     {
@@ -85,7 +87,7 @@ public class GhostBehavior : MonoBehaviour
                 break;
 
             case GhostType.Cyan:
-                ghostColor = Color.cyan;
+                ghostColor = new Color(0, .88f, 1);
                 eyeColor = Color.white;
                 gakManRadius = 0;
                 break;
@@ -406,23 +408,15 @@ public class GhostBehavior : MonoBehaviour
         {
             eyeSprite.sprite = Static.main.ghostSprites[5];
             eyeSprite.color = Color.red;
-            bodySprite.color = Color.blue;
+            bodySprite.color = scaredColor;
 
             if (prevState != GhostState.Scared)
-            {
-                float randomStart = UnityEngine.Random.Range(0, .6f);
-                Invoke("StartBodyFlashing", randomStart);
-                Invoke("StartEyeFlashing", randomStart + 1f);
-            }
-            
+                flashMEC = Timing.RunCoroutine(_StartFlash());
         }
         else
         {
-            if (bodyFlash.isAlive || eyeFlash.isAlive)
-            {
-                bodyFlash.Stop();
-                eyeFlash.Stop();
-            }
+            if (flashMEC != null && flashMEC.IsRunning)
+                Timing.KillCoroutines(flashMEC);
 
             eyeSprite.sprite = movementController.GetMoveDirection().y switch
             {
@@ -435,14 +429,45 @@ public class GhostBehavior : MonoBehaviour
         }
     }
 
-    void StartBodyFlashing()
+    IEnumerator<float> _StartFlash()
     {
-        bodyFlash = Tween.Color(bodySprite, startValue: Color.white, endValue: Color.blue, 2f, cycles: -1, cycleMode: CycleMode.Restart);
-    }
+        yield return Timing.WaitForSeconds(UnityEngine.Random.Range(0, .7f));
 
-    void StartEyeFlashing()
-    {
-        eyeFlash = Tween.Color(eyeSprite, startValue: Color.white, endValue: Color.red, 2f, cycles: -1, cycleMode: CycleMode.Restart);
+        float timeBody = 0, timeEyes = 0;
+        float duration = .4f;
+        float postDelay = .3f;
+        float startTime = Time.time;
+        bool ab = UnityEngine.Random.Range(0, 2) == 0;
+        while (true)
+        {
+            if (timeBody == 0)
+                bodySprite.color = ab ? Color.red : Color.white;
+            else
+                bodySprite.color = Color.Lerp(ab ? Color.red : Color.white, scaredColor, timeBody / duration);
+
+            timeBody += Time.deltaTime;
+
+            if (timeBody > duration + postDelay)
+            {
+                ab = !ab;
+                timeBody = 0;
+            }
+
+            if (Time.time >= startTime + duration / 2)
+            {
+                if (timeEyes == 0)
+                    eyeSprite.color = Color.white;
+                else
+                    eyeSprite.color = Color.Lerp(Color.white, Color.red, timeEyes / duration);
+
+                timeEyes += Time.deltaTime;
+
+                if (timeEyes > duration + postDelay)
+                    timeEyes = 0;
+            }
+
+            yield return 0f;
+        }
     }
 
     public void Gizmos()
