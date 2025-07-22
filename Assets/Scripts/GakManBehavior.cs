@@ -29,6 +29,8 @@ public class GakManBehavior : MonoBehaviour
 
         if (egg.PowerEgg)
             Static.main.ScareGhosts();
+
+        Static.main.eggs.Remove(egg);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

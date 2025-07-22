@@ -8,6 +8,7 @@ using EX;
 using System.Linq;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using PrimeTween;
 
 public class Main : MonoBehaviour
 {
@@ -30,6 +31,8 @@ public class Main : MonoBehaviour
     public List<ScatterTarget> scatterTargets = new();
     [HideInInspector]
     public List<Egg> eggs = new();
+    [HideInInspector]
+    public List<Egg> activeEggs = new();
     [HideInInspector]
     public List<Vector2> eggPositions = new();
     //[HideInInspector]
@@ -94,6 +97,7 @@ public class Main : MonoBehaviour
     {
         eggs.Add(egg);
         eggPositions.Add(egg.transform.position);
+        //activeEggs.Add(egg);
     }
 
     private void Update()
@@ -114,13 +118,13 @@ public class Main : MonoBehaviour
             ScareGhosts();
         }
 
-        if (InputProcessor.input.actions["S4"].WasPressedThisFrame())
-        {
-            if (!scatterMode)
-                ScatterGhosts();
-            else
-                UnScatterGhosts();
-        }
+        //if (InputProcessor.input.actions["S4"].WasPressedThisFrame())
+        //{
+        //    if (!scatterMode)
+        //        ScatterGhosts();
+        //    else
+        //        UnScatterGhosts();
+        //}
 
         // move all characters
         foreach (MovementController character in movementCtrlrs)
@@ -133,6 +137,15 @@ public class Main : MonoBehaviour
         // update ghost behavior
         foreach (GhostBehavior ghost in ghosts)
             ghost.BehaviorUpdate();
+
+        // randomly rotate eggs
+        if (UnityEngine.Random.Range(0, 5000 / eggs.Count) == 0)
+        {
+            Transform eggTransform = eggs[UnityEngine.Random.Range(0, eggs.Count)].transform;
+            Sequence.Create()
+                .Group(Tween.EulerAngles(eggTransform, startValue: new Vector3(0, 0, 270), endValue: Vector2.zero, .5f, Ease.OutQuad))
+                .Group(Tween.Scale(eggTransform, startValue: Vector3.one * 1.6f, endValue: Vector3.one, .5f, Ease.InOutBack));
+        }
 
         if (drawGizmos)
             Gizmos();

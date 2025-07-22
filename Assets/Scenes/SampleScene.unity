@@ -14345,6 +14345,7 @@ MonoBehaviour:
   gakMen: []
   scatterTargets: []
   eggs: []
+  activeEggs: []
   eggPositions: []
   ghostSprites:
   - {fileID: 4448715427215634006, guid: 9de832ddd0291f243bfb6fefd058537a, type: 3}

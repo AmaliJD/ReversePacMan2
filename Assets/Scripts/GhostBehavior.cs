@@ -45,7 +45,7 @@ public class GhostBehavior : MonoBehaviour
     MovementController movementController;
     Color ghostColor, eyeColor;
     SpriteRenderer bodySprite, eyeSprite;
-    Sequence bodyFlash, eyeFlash;
+    Tween bodyFlash, eyeFlash;
 
     private void Awake()
     {
@@ -412,13 +412,13 @@ public class GhostBehavior : MonoBehaviour
             {
                 float randomStart = UnityEngine.Random.Range(0, .6f);
                 Invoke("StartBodyFlashing", randomStart);
-                Invoke("StartEyeFlashing", randomStart + .4f);
+                Invoke("StartEyeFlashing", randomStart + 1f);
             }
             
         }
         else
         {
-            if (prevState == GhostState.Scared)
+            if (bodyFlash.isAlive || eyeFlash.isAlive)
             {
                 bodyFlash.Stop();
                 eyeFlash.Stop();
@@ -437,18 +437,12 @@ public class GhostBehavior : MonoBehaviour
 
     void StartBodyFlashing()
     {
-        bodyFlash = Sequence.Create()
-                    .Chain(Tween.Color(bodySprite, Color.white, .05f))
-                    .Chain(Tween.Color(bodySprite, Color.blue, 1f))
-                    .OnComplete(() => Invoke("StartBodyFlashing", 0));
+        bodyFlash = Tween.Color(bodySprite, startValue: Color.white, endValue: Color.blue, 2f, cycles: -1, cycleMode: CycleMode.Restart);
     }
 
     void StartEyeFlashing()
     {
-        eyeFlash = Sequence.Create()
-                    .Chain(Tween.Color(eyeSprite, Color.white, .05f))
-                    .Chain(Tween.Color(eyeSprite, Color.red, 1f))
-                    .OnComplete(() => Invoke("StartEyeFlashing", 0));
+        eyeFlash = Tween.Color(eyeSprite, startValue: Color.white, endValue: Color.red, 2f, cycles: -1, cycleMode: CycleMode.Restart);
     }
 
     public void Gizmos()
