@@ -196,6 +196,11 @@ public class Main : MonoBehaviour
 
             ghost.state = GhostBehavior.GhostState.Scared;
         }
+
+        foreach (GakManBehavior gakMan in gakMen)
+        {
+            gakMan.InstantEatTouchingGhosts();
+        }
     }
 
     private void Gizmos()

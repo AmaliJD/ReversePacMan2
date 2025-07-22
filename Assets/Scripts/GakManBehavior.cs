@@ -28,9 +28,22 @@ public class GakManBehavior : MonoBehaviour
         Static.main.eggsCollected++;
 
         if (egg.PowerEgg)
+        {
             Static.main.ScareGhosts();
+        }
 
         Static.main.eggs.Remove(egg);
+    }
+
+    public void InstantEatTouchingGhosts()
+    {
+        Collider2D[] ghostColliders = Physics2D.OverlapCircleAll(transform.position, GetComponent<CircleCollider2D>().radius, 1 << LayerMask.NameToLayer("Ghost"));
+        foreach (Collider2D collider in ghostColliders)
+        {
+            GhostBehavior ghost = collider.GetComponent<GhostBehavior>();
+            if (ghost.state == GhostBehavior.GhostState.Scared)
+                ghost.state = GhostBehavior.GhostState.Eaten;
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
