@@ -139,7 +139,7 @@ public class Main : MonoBehaviour
             ghost.BehaviorUpdate();
 
         // randomly rotate eggs
-        if (UnityEngine.Random.Range(0, 5500 / eggs.Count) == 0)
+        if (eggs.Count > 0 && UnityEngine.Random.Range(0, 5500 / eggs.Count) == 0)
         {
             Transform eggTransform = eggs[UnityEngine.Random.Range(0, eggs.Count)].transform;
             Sequence.Create()
