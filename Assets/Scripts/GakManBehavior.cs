@@ -14,7 +14,15 @@ public class GakManBehavior : MonoBehaviour
 
     public void BehaviorUpdate()
     {
-        
+        Visuals();
+    }
+
+    void Visuals()
+    {
+        if (movementController.GetMoveDirection() == Vector2.right && transform.localScale.x != 1)
+            transform.localScale = new Vector3(1, 1, 1);
+        else if (movementController.GetMoveDirection() == Vector2.left && transform.localScale.x != -1)
+            transform.localScale = new Vector3(-1, 1, 1);
     }
 
     void GetEgg(Egg egg)
