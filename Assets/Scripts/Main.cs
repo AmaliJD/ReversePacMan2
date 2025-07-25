@@ -6,13 +6,12 @@ using System.Collections.Generic;
 using System.Collections;
 using EX;
 using System.Linq;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
 using PrimeTween;
 
 public class Main : MonoBehaviour
 {
     public Tilemap WallTilemap;
+    public Tilemap SecretWallTilemap;
     List<MovementController> movementCtrlrs = new();
     
     [HideInInspector]
@@ -51,24 +50,13 @@ public class Main : MonoBehaviour
     {
         Static.main = this;
 
-        TileMapProcessor.Init(WallTilemap);
+        TileMapProcessor.Init(WallTilemap, SecretWallTilemap);
         TileMapProcessor.SearchTilemapForNodes();
         TileMapProcessor.RemoveIgnoreTiles();
 
         InputProcessor.input = GetComponent<PlayerInput>();
-        //StartCoroutine(LoadGhostSprites());
-    }
-
-    private IEnumerator LoadGhostSprites()
-    {
-        AsyncOperationHandle<Sprite[]> ghostAssetHandle = Addressables.LoadAssetAsync<Sprite[]>("Assets/Images/ghost.png");
-        yield return ghostAssetHandle;
-
-        if (ghostAssetHandle.Status == AsyncOperationStatus.Succeeded)
-        {
-            foreach (Sprite sprite in ghostAssetHandle.Result)
-                ghostSprites.Add(sprite);
-        }
+        
+        SecretWallTilemap.color = WallTilemap.color.SetAlpha(.2f);
     }
 
     private void Start()
@@ -217,5 +205,9 @@ public class Main : MonoBehaviour
         // teleportal gizmos
         //foreach (TeleportReference tpr in teleportReferences)
         //    tpr.Gizmos();
+
+        //// hasTile
+        //GLGizmos.SetColor(TileMapProcessor.HasTile(Camera.main.ScreenToWorldPoint(Mouse.current.position.value), true, false) ? Color.red : Color.green);
+        //GLGizmos.DrawBoxRing(Camera.main.ScreenToWorldPoint(Mouse.current.position.value + Vector2.one).Round(), Vector2.one * 1f, .2f);
     }
 }

@@ -34,6 +34,7 @@ public class MovementController : MonoBehaviour
     public ReverseInputBehavior reverseInputBehavior;
 
     public bool countIgnoreWalls;
+    public bool countSecretWalls;
 
     public struct MovementBehaviorStruct
     {
@@ -97,7 +98,7 @@ public class MovementController : MonoBehaviour
 
     public void InstantReverseMoveDirection()
     {
-        if (TileMapProcessor.nodePositions.Contains(transform.position) && TileMapProcessor.HasTile(prevGridPos - moveDirection, countIgnoreWalls))
+        if (TileMapProcessor.nodePositions.Contains(transform.position) && TileMapProcessor.HasTile(prevGridPos - moveDirection, countIgnoreWalls, countSecretWalls))
             return;
 
         moveDirection = -moveDirection;
@@ -123,7 +124,7 @@ public class MovementController : MonoBehaviour
         Vector2 reverseTestDirection = Vector2.zero;
         for (int i = 0; i < 4; i++)
         {
-            if (!TileMapProcessor.HasTile(nextGridPos + testDirection, countIgnoreWalls))
+            if (!TileMapProcessor.HasTile(nextGridPos + testDirection, countIgnoreWalls, countSecretWalls))
             {
                 if (testDirection == -moveDirection ? reverseDirection : true)
                 {
@@ -159,7 +160,7 @@ public class MovementController : MonoBehaviour
 
                 Vector2 nextTransformPosition = Vector2.MoveTowards(transform.position, nextGridPos, speed.PerFrame() * Static.main.gameSpeed);
                 bool atNode = nextTransformPosition == nextGridPos && TileMapProcessor.nodePositions.Contains(transform.position.Round());
-                bool atWall = atNode && TileMapProcessor.HasTile(nextGridPos + moveDirection, countIgnoreWalls);
+                bool atWall = atNode && TileMapProcessor.HasTile(nextGridPos + moveDirection, countIgnoreWalls, countSecretWalls);
 
                 // if can reverse anytime and not at node
                 if (!atNode && reverseInputBehavior == ReverseInputBehavior.Anytime)
@@ -192,7 +193,7 @@ public class MovementController : MonoBehaviour
                 Vector2 reverseTestDirection = Vector2.zero;
                 for (int i = 0; i < 4; i++)
                 {
-                    if (!TileMapProcessor.HasTile(nextGridPos + testDirection, countIgnoreWalls))
+                    if (!TileMapProcessor.HasTile(nextGridPos + testDirection, countIgnoreWalls, countSecretWalls))
                     {
                         if (testDirection == -moveDirection ? reverseDirection : true)
                         {
@@ -225,7 +226,7 @@ public class MovementController : MonoBehaviour
             case SetDirectionBehavior.Random:
                 nextTransformPosition = Vector2.MoveTowards(transform.position, nextGridPos, speed.PerFrame() * Static.main.gameSpeed);
                 atNode = nextTransformPosition == nextGridPos && TileMapProcessor.nodePositions.Contains(transform.position.Round());
-                atWall = atNode && TileMapProcessor.HasTile(nextGridPos + moveDirection, countIgnoreWalls);
+                atWall = atNode && TileMapProcessor.HasTile(nextGridPos + moveDirection, countIgnoreWalls, countSecretWalls);
 
                 reverseDirection = reverseInputBehavior switch
                 {
@@ -263,7 +264,7 @@ public class MovementController : MonoBehaviour
         transform.position = Vector2.MoveTowards(transform.position, nextGridPos, speed.PerFrame() * Static.main.gameSpeed);
 
         bool withinPostBuffer = inputPostBuffer > 0 && Vector2.Distance((Vector2)transform.position, prevGridPos) <= Vector2.Distance(prevGridPos + moveDirection * inputPostBuffer, prevGridPos) && Vector2.Dot((Vector2)transform.position - prevGridPos, moveDirection * inputPostBuffer) > 0;
-        bool readInput = InputProcessor.inputDirectionPressedThisFrame && inputDirection != Vector2.zero && inputDirection != -moveDirection && inputDirection != moveDirection && !TileMapProcessor.HasTile(prevGridPos + inputDirection, countIgnoreWalls);
+        bool readInput = InputProcessor.inputDirectionPressedThisFrame && inputDirection != Vector2.zero && inputDirection != -moveDirection && inputDirection != moveDirection && !TileMapProcessor.HasTile(prevGridPos + inputDirection, countIgnoreWalls, countSecretWalls);
 
         // skip input
         if (!((Vector2)transform.position == nextGridPos || (withinPostBuffer && readInput)))
@@ -295,24 +296,24 @@ public class MovementController : MonoBehaviour
                 reverseInputBehavior switch
                 {
                     ReverseInputBehavior.NodeOnly => true,
-                    ReverseInputBehavior.WallOnly => inputDirection == -moveDirection ? TileMapProcessor.HasTile(prevGridPos + moveDirection, countIgnoreWalls) : true,
+                    ReverseInputBehavior.WallOnly => inputDirection == -moveDirection ? TileMapProcessor.HasTile(prevGridPos + moveDirection, countIgnoreWalls, countSecretWalls) : true,
                     _ => inputDirection != -moveDirection
                 } &&
-                !TileMapProcessor.HasTile(prevGridPos + inputDirection, countIgnoreWalls))
+                !TileMapProcessor.HasTile(prevGridPos + inputDirection, countIgnoreWalls, countSecretWalls))
             {
                 moveDirection = inputDirection;
                 moveMultiplier = 1;
             }
 
             // at wall
-            if (TileMapProcessor.HasTile(prevGridPos + moveDirection, countIgnoreWalls))
+            if (TileMapProcessor.HasTile(prevGridPos + moveDirection, countIgnoreWalls, countSecretWalls))
             {
                 Vector2 TurnMoveDirection()
                 {
-                    if (!TileMapProcessor.HasTile(prevGridPos + moveDirection.Rotate90CCW(), countIgnoreWalls))
+                    if (!TileMapProcessor.HasTile(prevGridPos + moveDirection.Rotate90CCW(), countIgnoreWalls, countSecretWalls))
                         return moveDirection.Rotate90CCW();
 
-                    if (!TileMapProcessor.HasTile(prevGridPos + moveDirection.Rotate90CW(), countIgnoreWalls))
+                    if (!TileMapProcessor.HasTile(prevGridPos + moveDirection.Rotate90CW(), countIgnoreWalls, countSecretWalls))
                         return moveDirection.Rotate90CW();
 
                     return hitWallBehavior switch

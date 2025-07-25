@@ -57,6 +57,7 @@ MonoBehaviour:
   inputPostBuffer: 0.5
   reverseInputBehavior: 3
   countIgnoreWalls: 1
+  countSecretWalls: 1
 --- !u!114 &7448339190567837340
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -72,7 +73,6 @@ MonoBehaviour:
   state: 0
   ghostType: 6
   scatterTarget: {fileID: 0}
-  eyeSpriteIndex: 12
 --- !u!58 &2798813730256674128
 CircleCollider2D:
   m_ObjectHideFlags: 0

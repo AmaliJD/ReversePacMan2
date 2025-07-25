@@ -22,6 +22,8 @@ public static class InputProcessor
         if (inputDirection.y != 0 && inputDirection.x != 0)
             inputDirection4Way = inputDirection4Way.SetX(0);
 
+        inputDirection4Way = inputDirection4Way.normalized;
+
         if (inputDirection4Way != Vector2.zero)
         {
             inputDirectionLast4Way = inputDirection4Way;

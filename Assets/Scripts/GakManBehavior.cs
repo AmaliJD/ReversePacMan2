@@ -28,6 +28,8 @@ public class GakManBehavior : MonoBehaviour
     void GetEgg(Egg egg)
     {
         int eggIndex = Static.main.eggs.IndexOf(egg);
+        if (eggIndex == -1)
+            return;
 
         Static.main.eggPositions.RemoveAt(eggIndex);
         Static.main.eggs.RemoveAt(eggIndex);

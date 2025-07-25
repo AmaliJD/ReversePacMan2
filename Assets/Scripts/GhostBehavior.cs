@@ -4,9 +4,7 @@ using System.Linq;
 using UnityEngine;
 using System.Collections.Generic;
 using static MovementController;
-using PrimeTween;
 using MEC;
-using UnityEngine.UIElements.Experimental;
 
 [RequireComponent(typeof(MovementController))]
 public class GhostBehavior : MonoBehaviour
@@ -41,7 +39,7 @@ public class GhostBehavior : MonoBehaviour
     float timeBecameScared;
 
     public Transform scatterTarget;
-    public int eyeSpriteIndex;
+    int eyeSpriteIndex;
 
     MovementController movementController;
     Color ghostColor, eyeColor;
@@ -72,61 +70,71 @@ public class GhostBehavior : MonoBehaviour
 
     void InitGhost()
     {
+        bodySprite = transform.GetChild(0).GetComponent<SpriteRenderer>();
+        eyeSprite = transform.GetChild(1).GetComponent<SpriteRenderer>();
+        eyeSprite.transform.localPosition = Vector2.zero;
+
         switch (ghostType)
         {
             case GhostType.Red:
                 ghostColor = Color.red;
                 eyeColor = Color.white;
+                eyeSpriteIndex = 15;
                 gakManRadius = 0;
                 break;
 
             case GhostType.Pink:
                 ghostColor = new Color(1, .72f, 1);
                 eyeColor = Color.white;
+                eyeSpriteIndex = 6;
                 gakManRadius = 0;
                 break;
 
             case GhostType.Cyan:
                 ghostColor = new Color(0, .88f, 1);
                 eyeColor = Color.white;
+                eyeSpriteIndex = 21;
                 gakManRadius = 0;
                 break;
 
             case GhostType.Orange:
                 ghostColor = new Color(1, .67f, .23f);
                 eyeColor = Color.white;
+                eyeSpriteIndex = 9;
                 gakManRadius = 8;
                 break;
 
             case GhostType.White:
                 ghostColor = Color.white;
                 eyeColor = Color.red;
+                eyeSpriteIndex = 12;
                 gakManRadius = 0;
                 break;
 
             case GhostType.Green:
                 ghostColor = new Color(.25f, 1, 0);
                 eyeColor = new Color(.94f, 1f, 1f);
+                eyeSpriteIndex = 24;
+                eyeSprite.transform.localPosition = new Vector2(-0.16f, .06f);
                 gakManRadius = 0;
                 break;
 
             case GhostType.Purple:
                 ghostColor = new Color(.53f, .33f, .9f);
                 eyeColor = new Color(1, .85f, .85f);
+                eyeSpriteIndex = 27;
                 gakManRadius = 0;
                 break;
 
             case GhostType.Yellow:
                 ghostColor = new Color(1, 0.88f, 0);
                 eyeColor = Color.white;
+                eyeSpriteIndex = 18;
                 gakManRadius = 8;
                 break;
         }
 
-        bodySprite = transform.GetChild(0).GetComponent<SpriteRenderer>();
         bodySprite.color = ghostColor;
-
-        eyeSprite = transform.GetChild(1).GetComponent<SpriteRenderer>();
         eyeSprite.color = eyeColor;
     }
 
@@ -247,6 +255,8 @@ public class GhostBehavior : MonoBehaviour
             case GhostType.Purple:
                 target = Static.main.gakMen.OrderBy(x => Vector2.Distance(x.transform.position, transform.position)).ToArray()[0].transform;
                 chasingBehavior.reverseInputBehavior = ReverseInputBehavior.WallOnly;
+                chasingBehavior.speed = 4f;
+                scatterBehavior.speed = 4f;
                 break;
 
             case GhostType.Yellow:
@@ -290,6 +300,9 @@ public class GhostBehavior : MonoBehaviour
                 break;
 
             case GhostState.Chase:
+                if (prevState == GhostState.Scatter)
+                    movementController.InstantReverseMoveDirection();
+
                 if (ghostType != GhostType.White || isHome)
                 {
                     (Transform target, Vector2 offset) = GetChaseTarget();

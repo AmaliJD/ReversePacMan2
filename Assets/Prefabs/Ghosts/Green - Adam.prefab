@@ -26,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 1942396907016904738}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.16, y: 0.06, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1.8, y: 1.8, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -254,6 +254,7 @@ MonoBehaviour:
   inputPostBuffer: 0
   reverseInputBehavior: 0
   countIgnoreWalls: 1
+  countSecretWalls: 1
 --- !u!114 &6388761130307482056
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -269,7 +270,6 @@ MonoBehaviour:
   state: 0
   ghostType: 3
   scatterTarget: {fileID: 0}
-  eyeSpriteIndex: 24
 --- !u!58 &6625169480549189803
 CircleCollider2D:
   m_ObjectHideFlags: 0
