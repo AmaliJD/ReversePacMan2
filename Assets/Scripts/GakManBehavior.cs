@@ -50,9 +50,10 @@ public class GakManBehavior : MonoBehaviour
         Collider2D[] ghostColliders = Physics2D.OverlapCircleAll(transform.position, GetComponent<CircleCollider2D>().radius, 1 << LayerMask.NameToLayer("Ghost"));
         foreach (Collider2D collider in ghostColliders)
         {
-            GhostBehavior ghost = collider.GetComponent<GhostBehavior>();
-            if (ghost.state == GhostBehavior.GhostState.Scared)
-                ghost.state = GhostBehavior.GhostState.Eaten;
+            TouchedGhost(collider.GetComponent<GhostBehavior>());
+            //GhostBehavior ghost = collider.GetComponent<GhostBehavior>();
+            //if (ghost.state == GhostBehavior.GhostState.Scared)
+            //    ghost.state = GhostBehavior.GhostState.Eaten;
         }
     }
 
@@ -62,9 +63,18 @@ public class GakManBehavior : MonoBehaviour
             GetEgg(collision.GetComponent<Egg>());
         else if (collision.tag == "Ghost")
         {
-            GhostBehavior ghost = collision.GetComponent<GhostBehavior>();
-            if (ghost.state == GhostBehavior.GhostState.Scared)
-                ghost.state = GhostBehavior.GhostState.Eaten;
+            //GhostBehavior ghost = collision.GetComponent<GhostBehavior>();
+            //if (ghost.state == GhostBehavior.GhostState.Scared)
+            //    ghost.state = GhostBehavior.GhostState.Eaten;
+            TouchedGhost(collision.GetComponent<GhostBehavior>());
         }
+    }
+
+    void TouchedGhost(GhostBehavior ghost)
+    {
+        if (ghost.state == GhostBehavior.GhostState.Scared)
+            ghost.state = GhostBehavior.GhostState.Eaten;
+        else if (ghost.state == GhostBehavior.GhostState.Chase || ghost.state == GhostBehavior.GhostState.Scatter)
+            Static.main.ReloadScene();
     }
 }

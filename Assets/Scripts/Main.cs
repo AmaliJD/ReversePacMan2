@@ -7,6 +7,7 @@ using System.Collections;
 using EX;
 using System.Linq;
 using PrimeTween;
+using UnityEngine.SceneManagement;
 
 public class Main : MonoBehaviour
 {
@@ -92,26 +93,31 @@ public class Main : MonoBehaviour
     {
         InputProcessor.GetInputs();
 
-        if (InputProcessor.input.actions["S1"].WasPressedThisFrame())
+        if (Keyboard.current.digit1Key.wasPressedThisFrame)
             drawGizmos = !drawGizmos;
 
-        if (InputProcessor.input.actions["S2"].WasPressedThisFrame())
+        if (Keyboard.current.digit2Key.wasPressedThisFrame)
         {
             foreach (GhostBehavior ghost in ghosts)
                 ghost.state = GhostBehavior.GhostState.Eaten;
         }
 
-        if (InputProcessor.input.actions["S3"].WasPressedThisFrame())
+        if (Keyboard.current.digit3Key.wasPressedThisFrame)
         {
             ScareGhosts();
         }
 
-        if (InputProcessor.input.actions["S4"].WasPressedThisFrame())
+        if (Keyboard.current.digit4Key.wasPressedThisFrame)
         {
             if (!scatterMode)
                 ScatterGhosts();
             else
                 UnScatterGhosts();
+        }
+
+        if (Keyboard.current.rKey.wasPressedThisFrame)
+        {
+            ReloadScene();
         }
 
         // move all characters
@@ -137,6 +143,11 @@ public class Main : MonoBehaviour
 
         if (drawGizmos)
             Gizmos();
+    }
+
+    public void ReloadScene()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     void ScatterGhosts()
